@@ -1,5 +1,10 @@
 var express = require('express');
 var app = express();
 
-app.listen(3000);
-console.log("Magic happens on port 3000");
+app.set('port', 3000);
+
+var server = app.listen(app.get('port'), function() {
+    var port = server.address().port;
+    console.log('Magic happens on port ' + port);
+});
+console.log('Me first!');
