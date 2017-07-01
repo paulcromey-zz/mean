@@ -1,20 +1,24 @@
 const express = require('express');
 const app = express();
+
 const path = require('path');
 const fs = require('fs');
-const Console = require('console').Console;
 
+const routes = require('./api/routes');
+
+const Console = require('console').Console;
 const logger = new Console(fs.createWriteStream('./log/stdout.log'), fs.createWriteStream('./log/stderr.log'));
 
 app.set('port', 3000);
 
+app.use(function(req, res, next){
+	logger.info(req.method, req.url);
+	next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/json', function(req, res) {
-	logger.time('INFO : method json');
-	res.status(200).json( {"jsonData" : false});
-	logger.timeEnd('INFO : method json');
-});
+app.use('/api', routes);
 
 app.get('/file', function(req, res) {
 	logger.time('INFO : method file');
@@ -27,5 +31,5 @@ app.get('/file', function(req, res) {
 
 const server = app.listen(app.get('port'), function() {
 	var port = server.address().port;
-	console.info('Magic happens on port ' + port);
+	logger.info('Magic happens on port ' + port);
 });  
