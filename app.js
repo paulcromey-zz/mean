@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const Console = require('console').Console;
 
-const logger = new Console(fs.createWriteStream('./stdout.log'));
+const logger = new Console(fs.createWriteStream('./log/stdout.log'), fs.createWriteStream('./log/stderr.log'));
 
 app.set('port', 3000);
 
