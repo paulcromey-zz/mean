@@ -33,7 +33,7 @@ app.get('/file', function(req, res) {
 	logger.timeEnd('INFO : method file');
 });
 
-const server = app.listen(app.get('port'), function() {
+const server = app.listen(process.env.PORT || app.get('port'), function() {
 	var port = server.address().port;
 	logger.info('Magic happens on port ' + port);
 });  
