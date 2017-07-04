@@ -1,6 +1,5 @@
 var dbconn = require('../data/dbconnection.js');
 var ObjectId = require('mongodb').ObjectId;
-var hotelData = require('../data/hotel-data.json');
 
 module.exports.getHotels = function(req, res) {
 	callCollection('hotels').find().skip(offset(req)).limit(count(req)).toArray(function(err, hotels) {
@@ -9,8 +8,13 @@ module.exports.getHotels = function(req, res) {
 			console.log(message, err);
 			res.status(500).json(message);
 		}
-		console.log("Found hotels", hotels);
-		res.status(200).json(hotels);
+		if (hotels) {
+			console.log("Found hotels", hotels);
+			res.status(200).json(hotels);
+		} else {
+			res.status(200).json({});
+		}
+		
 	});
 };
 
@@ -22,7 +26,7 @@ module.exports.getHotel = function(req, res) {
 			res.status(500).json(message);
 		}
 		if (hotel) {
-			console.log("Found hotels", hotel);
+			console.log("Found hotel", hotel);
 			res.status(200).json(hotel);
 		} else {
 			res.status(200).json({});
@@ -32,8 +36,18 @@ module.exports.getHotel = function(req, res) {
 
 module.exports.addHotel = function(req, res) {
 	console.log("POST new hotel");
-	console.log(req.body);
-	res.status(200).json(req.body);
+	if (req.body && req.body.name && req.body.stars){
+		console.log(req.body);
+		var newHotel = req.body;
+		newHotel.stars = parseInt(req.body.stars);
+		callCollection('hotels').insertOne(newHotel, function(err, response){
+			console.log(response.ops);
+			res.status(201).json(response.ops);
+		});
+	} else {
+		console.log("Data missing from body");
+		res.status(400).json({ message : "Required data missing from body" });
+	}
 };
 
 function callCollection(collection){

@@ -7,6 +7,6 @@ router.route('/hotels').get(hotels.getHotels);
 
 router.route('/hotels/:hotelId').get(hotels.getHotel);
 
-router.route('/hotels/new').post(hotels.addHotel);
+router.route('/hotels').post(hotels.addHotel);
 
 module.exports = router;
