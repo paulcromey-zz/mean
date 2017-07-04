@@ -1,3 +1,4 @@
+require('./api/data/dbconnection.js').open();
 const express = require('express');
 const app = express();
 
