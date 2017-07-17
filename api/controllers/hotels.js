@@ -1,37 +1,20 @@
-var dbconn = require('../data/dbconnection.js');
-var ObjectId = require('mongodb').ObjectId;
+var mongoose = require('mongoose');
+var Hotel = mongoose.model('Hotel');
 
 module.exports.getHotels = function(req, res) {
-	callCollection('hotels').find().skip(offset(req)).limit(count(req)).toArray(function(err, hotels) {
-		if (err) {
-			const message = "DB call failed";
-			console.log(message, err);
-			res.status(500).json(message);
-		}
-		if (hotels) {
-			console.log("Found hotels", hotels);
-			res.status(200).json(hotels);
-		} else {
-			res.status(200).json({});
-		}
-		
+	
+	Hotel.find().skip(offset(req)).limit(count(req)).exec(function(err, hotels) {
+		res.json(hotels);
 	});
+		
 };
 
 module.exports.getHotel = function(req, res) {
-	callCollection('hotels').findOne({ _id : ObjectId(req.params.hotelId) }, function(err, hotel) {
-		if (err) {
-			const message = "DB call failed";
-			console.log(message, err);
-			res.status(500).json(message);
-		}
-		if (hotel) {
-			console.log("Found hotel", hotel);
-			res.status(200).json(hotel);
-		} else {
-			res.status(200).json({});
-		}
+	
+	Hotel.findById(req.params.hotelId).exec(function(err, hotel) {
+		res.status(200).json(hotel);
 	});
+		
 };
 
 module.exports.addHotel = function(req, res) {

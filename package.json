@@ -24,7 +24,8 @@
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "jquery": "^3.2.1",
-    "mongodb": "^2.2.29"
+    "mongodb": "^2.2.29",
+    "mongoose": "^4.11.1"
   },
   "devDependencies": {
     "mocha": "^3.4.2"
