@@ -1,18 +1,80 @@
 var mongoose = require('mongoose');
 var Hotel = mongoose.model('Hotel');
 
+var runGeoQuery = function(req, res){
+
+	var lon = parseFloat(req.query.lon);
+	var lat = parseFloat(req.query.lat);
+	
+	var point = {
+		type : "Point",
+		coordinates : [lon, lat]
+	};
+
+	var geoOptions = {
+		spherical : true,
+		maxDistance : 20000,
+		num : 5
+	}
+
+	Hotel.geoNear(point, geoOptions, function(err, results, stats){
+		console.log("GEO " + err);
+		res.status(200).json(results);
+	});
+};
+
 module.exports.getHotels = function(req, res) {
+
+	var maxCount = 10;
+
+	if (req.query && req.query.lon & req.query.lat) {
+		runGeoQuery(req, res);
+		return;
+	}
+
+	if(isNaN(offset(req)) || isNaN(count(req))){
+		res.status(400).json({
+			"message" : "offset or count should be numbers"
+		})
+		return;
+	}
+
+	if(count(req) > maxCount){
+		res.status(400).json({
+			"message" : "count limit exceeded"
+		})
+		return;
+	}
 	
 	Hotel.find().skip(offset(req)).limit(count(req)).exec(function(err, hotels) {
-		res.json(hotels);
+		if(err){
+			res.status(500).json(err);
+		} else {
+			res.status(200).json(hotels);
+		}
 	});
 		
 };
 
 module.exports.getHotel = function(req, res) {
 	
+	
+
 	Hotel.findById(req.params.hotelId).exec(function(err, hotel) {
-		res.status(200).json(hotel);
+		var response = {
+			status : 200,
+			message : hotel
+		};
+		if (err) {  
+			response.status = 500;
+			response.message = err;
+		} else if (!hotel) {
+			response.status = 404;
+			response.message = {
+				"message" : "Hotel ID not found"
+			};
+		} 
+		res.status(response.status).json(response.message);
 	});
 		
 };
