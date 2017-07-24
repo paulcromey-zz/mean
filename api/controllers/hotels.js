@@ -154,6 +154,18 @@ module.exports.updateHotel = function(req, res) {
 	});
 };
 
+module.exports.deleteHotel = function(req, res) {
+	console.log("DELETE hotel");
+	Hotel.findByIdAndRemove(req.params.hotelId)
+		.exec(function(err, hotel){
+			if(err){
+				res.status(404).json(err);
+			} else {
+				res.status(204).json();
+			}
+		});
+};
+
 var _offset = function(req) {
 	if (req.query && req.query.offset) {
 		return parseInt(req.query.offset, 10);
