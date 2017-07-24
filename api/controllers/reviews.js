@@ -76,11 +76,8 @@ module.exports.addReview = function(req, res) {
 		});
 };
 
-var _offset = function(req) {
-	if (req.query && req.query.offset) {
-		return parseInt(req.query.offset, 10);
-	} else {
-		return 0; // default 0
-	}
+module.exports.updateReview = function(req, res) {
+	console.log("POST new hotel");
+	
 };
 

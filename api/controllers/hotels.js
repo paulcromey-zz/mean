@@ -77,8 +77,6 @@ module.exports.getHotel = function(req, res) {
 		
 };
 
-
-
 module.exports.addHotel = function(req, res) {
 	console.log("POST new hotel");
 	if (req.body && req.body.name && req.body.stars){
@@ -109,6 +107,51 @@ module.exports.addHotel = function(req, res) {
 		console.log("Data missing from body");
 		res.status(400).json({ message : "Required data missing from body" });
 	}
+};
+
+module.exports.updateHotel = function(req, res) {
+	console.log("UPDATE hotel");
+	Hotel.findById(req.params.hotelId)
+		.select("-reviews -rooms")
+		.exec(function(err, hotel) {
+		var response = {
+			status : 200,
+			message : hotel
+		};
+		if (err) {  
+			response.status = 500;
+			response.message = err;
+		} else if (!hotel) {
+			response.status = 404;
+			response.message = {
+				"message" : "Hotel ID not found"
+			};
+		} 
+		if (response.status !== 200) {
+			res.status(response.status).json(response.message);
+		} else {
+			hotel.name = req.body.name;
+			hotel.description = req.body.description;
+			hotel.stars = parseInt(req.body.stars, 10);
+			hotel.services = _splitArray(req.body.services);
+			hotel.photos = _splitArray(req.body.photos);
+			hotel.currency = req.body.currency;
+			/*hotel.location = {
+				address : req.body.address,
+					coordinates : [
+						parseFloat(req.body.lon), 
+						parseFloat(req.body.lat)
+					]
+				};*/
+			hotel.save(function(err, updateHotel){
+				if(err){
+					res.status(500).json(err);
+				} else {
+					res.status(204).json();
+				}
+			});
+		}
+	});
 };
 
 var _offset = function(req) {
