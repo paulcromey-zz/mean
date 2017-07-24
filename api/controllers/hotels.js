@@ -32,21 +32,21 @@ module.exports.getHotels = function(req, res) {
 		return;
 	}
 
-	if(isNaN(offset(req)) || isNaN(count(req))){
+	if(isNaN(_offset(req)) || isNaN(_count(req))){
 		res.status(400).json({
 			"message" : "offset or count should be numbers"
 		})
 		return;
 	}
 
-	if(count(req) > maxCount){
+	if(_count(req) > maxCount){
 		res.status(400).json({
 			"message" : "count limit exceeded"
 		})
 		return;
 	}
 	
-	Hotel.find().skip(offset(req)).limit(count(req)).exec(function(err, hotels) {
+	Hotel.find().skip(_offset(req)).limit(_count(req)).exec(function(err, hotels) {
 		if(err){
 			res.status(500).json(err);
 		} else {
@@ -58,8 +58,6 @@ module.exports.getHotels = function(req, res) {
 
 module.exports.getHotel = function(req, res) {
 	
-	
-
 	Hotel.findById(req.params.hotelId).exec(function(err, hotel) {
 		var response = {
 			status : 200,
@@ -79,15 +77,33 @@ module.exports.getHotel = function(req, res) {
 		
 };
 
+
+
 module.exports.addHotel = function(req, res) {
 	console.log("POST new hotel");
 	if (req.body && req.body.name && req.body.stars){
 		console.log(req.body);
-		var newHotel = req.body;
-		newHotel.stars = parseInt(req.body.stars);
-		callCollection('hotels').insertOne(newHotel, function(err, response){
-			console.log(response.ops);
-			res.status(201).json(response.ops);
+		Hotel
+			.create({
+				name : req.body.name,
+				description : req.body.description,
+				stars : parseInt(req.body.stars, 10),
+				services : _splitArray(req.body.services),
+				photos : _splitArray(req.body.photos),
+				currency : req.body.currency,
+				location : {
+					address : req.body.address,
+					coordinates : [
+						parseFloat(req.body.lon), 
+						parseFloat(req.body.lat)
+					]
+				}
+			}, function(err, hotel) {
+				if (err) {
+					res.status(400).json(err);
+				} else {
+					res.status(201).json(hotel);
+				}
 		});
 	} else {
 		console.log("Data missing from body");
@@ -95,11 +111,7 @@ module.exports.addHotel = function(req, res) {
 	}
 };
 
-function callCollection(collection){
-	return dbconn.get().collection(collection);
-};
-
-function offset(req) {
+var _offset = function(req) {
 	if (req.query && req.query.offset) {
 		return parseInt(req.query.offset, 10);
 	} else {
@@ -107,11 +119,21 @@ function offset(req) {
 	}
 };
 
-function count(req) {
+var _count = function(req) {
 	if (req.query && req.query.count) {
 		return parseInt(req.query.count, 10);
 	} else {
 		return 5; // default 5
 	}
+};
+
+var _splitArray = function(input) {
+	var output;
+	if(input && input.length > 0) {
+		output = input.split(";");
+	} else {
+		output = [];
+	}
+	return output;
 };
 
