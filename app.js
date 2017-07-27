@@ -26,12 +26,15 @@ app.use(bodyParser.urlencoded( { extended : false } ));
 app.use('/api', routes);
 
 app.get('/file', function(req, res) {
-	logger.time('INFO : method file');
-	const code = 200;
-	logger.error('ERROR :', code);
-	logger.info('INFO :', code);
 	res.status(200).sendFile(path.join(__dirname, 'app.js'));
-	logger.timeEnd('INFO : method file');
+});
+
+app.get('/api/stdout', function(req, res) {
+	res.status(200).sendFile(path.join(__dirname, 'log/stdout.log'));
+});
+
+app.get('/api/stderr', function(req, res) {
+	res.status(200).sendFile(path.join(__dirname, 'log/stderr.log'));
 });
 
 const server = app.listen(process.env.PORT || app.get('port'), function() {
